@@ -1,0 +1,2609 @@
+{
+  "info": {
+    "_postman_id": "6328d8e7-c023-4508-994c-19cd178796d1",
+    "name": "RESTful Booker — 50 позитивных и негативных тест-кейсов",
+    "description": "Самодостаточная последовательная коллекция для тестового задания. Запускать целиком по порядку: auth → create → filters/get → put/patch → delete → ping → cleanup.\n\nДокументация: [https://restful-booker.herokuapp.com/apidoc/index.html](https://restful-booker.herokuapp.com/apidoc/index.html)  \nМашиночитаемый контракт: [https://restful-booker.herokuapp.com/apidoc/api_data.json](https://restful-booker.herokuapp.com/apidoc/api_data.json)  \nЖивая сверка: 2026-08-24T15:36:42.700Z.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "47924901"
+  },
+  "item": [
+    {
+      "name": "00 — Auth",
+      "item": [
+        {
+          "name": "TC-AUTH-001 — Получение токена с валидными учетными данными",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Ответ — JSON-объект\", () => pm.expect(pm.response.json()).to.be.an(\"object\"));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"token — непустая строка\", () => { pm.expect(data.token).to.be.a(\"string\").and.not.empty; });",
+                  "pm.collectionVariables.set(\"token\", data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth"
+              ]
+            },
+            "description": "200; JSON содержит непустой строковый token; token сохранен в переменную коллекции.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-AUTH-002 — Неверный пароль",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Токен отсутствует\", () => pm.expect(pm.response.json()).to.not.have.property(\"token\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"wrong\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth"
+              ]
+            },
+            "description": "401 Unauthorized; токен не выдан.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-AUTH-003 — Обязательный password отсутствует",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Токен отсутствует\", () => pm.expect(pm.response.json()).to.not.have.property(\"token\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth"
+              ]
+            },
+            "description": "400 Bad Request; токен не выдан.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-AUTH-004 — Невалидный JSON",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth"
+              ]
+            },
+            "description": "400 Bad Request.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 — POST booking",
+      "item": [
+        {
+          "name": "TC-POST-001 — Создание бронирования с валидным JSON",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const runId = Date.now().toString();",
+                  "pm.collectionVariables.set(\"firstname\", \"Codex\" + runId);",
+                  "pm.collectionVariables.set(\"lastname\", \"Probe\" + runId);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"bookingid — целое число\", () => pm.expect(data.bookingid).to.be.a(\"number\"));",
+                  "pm.test(\"Поля сохранены без изменений\", () => { pm.expect(data.booking.firstname).to.eql(pm.collectionVariables.get(\"firstname\")); pm.expect(data.booking.lastname).to.eql(pm.collectionVariables.get(\"lastname\")); pm.expect(data.booking.totalprice).to.eql(321); pm.expect(data.booking.depositpaid).to.eql(true); pm.expect(data.booking.bookingdates).to.eql({checkin:\"2030-01-10\", checkout:\"2030-01-20\"}); });",
+                  "pm.collectionVariables.set(\"bookingId\", data.bookingid);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"{{firstname}}\",\n  \"lastname\": \"{{lastname}}\",\n  \"totalprice\": 321,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "200; bookingid — число; booking полностью совпадает с запросом.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-POST-002 — Сохранение дробной totalprice без потери точности",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "try { const data = pm.response.json(); if (Number.isInteger(data.bookingid)) pm.collectionVariables.set(\"decimalBookingId\", data.bookingid); } catch (_) {}",
+                  "pm.test(\"Дробная цена сохранена точно\", () => pm.expect(pm.response.json().booking.totalprice).to.eql(99.99));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Decimal\",\n  \"lastname\": \"Price\",\n  \"totalprice\": 99.99,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "200; booking.totalprice строго равен 99.99.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-POST-003 — Невалидный формат checkin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let acceptedId;",
+                  "try {",
+                  "  const data = pm.response.json();",
+                  "  if (Number.isInteger(data.bookingid)) {",
+                  "    acceptedId = data.bookingid;",
+                  "    pm.collectionVariables.set(\"invalidDateBookingId\", acceptedId);",
+                  "  }",
+                  "} catch (_) {}",
+                  "",
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "",
+                  "if (acceptedId) {",
+                  "  pm.sendRequest({",
+                  "    url: pm.collectionVariables.get(\"baseUrl\") + \"/booking/\" + acceptedId,",
+                  "    method: \"DELETE\",",
+                  "    header: {",
+                  "      Cookie: \"token=\" + pm.collectionVariables.get(\"token\"),",
+                  "      \"Content-Type\": \"application/json\"",
+                  "    }",
+                  "  }, (err) => {",
+                  "    if (!err) pm.collectionVariables.unset(\"invalidDateBookingId\");",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Invalid\",\n  \"lastname\": \"Date\",\n  \"totalprice\": 321,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"not-a-date\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "400 Bad Request; запись не создана.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-POST-004 — Обязательный firstname отсутствует",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lastname\": \"Missing\",\n  \"totalprice\": 100,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"None\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "400 Bad Request; запись не создана.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-POST-005 — Строка вместо Number в totalprice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try { const data = pm.response.json(); if (Number.isInteger(data.bookingid)) pm.collectionVariables.set(\"wrongTypesBookingId\", data.bookingid); } catch (_) {}",
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Wrong\",\n  \"lastname\": \"Type\",\n  \"totalprice\": \"not-a-number\",\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "400 Bad Request; запись не создана.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-POST-006 — Невалидный JSON",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "400 Bad Request.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-POST-007 — Пустое тело запроса",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "400 Bad Request; запись не создана.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 — GET booking filters",
+      "item": [
+        {
+          "name": "TC-FLTR-001 — Получение всех bookingid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Массив bookingid\", () => { const rows = pm.response.json(); pm.expect(rows).to.be.an(\"array\"); rows.forEach(x => pm.expect(x.bookingid).to.be.a(\"number\")); });",
+                  "const ids = pm.response.json().map(x => x.bookingid);",
+                  "pm.test(\"Созданный bookingid найден\", () => pm.expect(ids).to.include(Number(pm.collectionVariables.get(\"bookingId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "200; JSON-массив объектов с числовым bookingid; созданный ID присутствует.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-FLTR-002 — Фильтр по firstname",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map(x => x.bookingid);",
+                  "pm.test(\"Созданный bookingid найден\", () => pm.expect(ids).to.include(Number(pm.collectionVariables.get(\"bookingId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking?firstname={{firstname}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "firstname",
+                  "value": "{{firstname}}"
+                }
+              ]
+            },
+            "description": "200; массив содержит bookingid созданной записи.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-FLTR-003 — Фильтр по lastname",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map(x => x.bookingid);",
+                  "pm.test(\"Созданный bookingid найден\", () => pm.expect(ids).to.include(Number(pm.collectionVariables.get(\"bookingId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking?lastname={{lastname}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "lastname",
+                  "value": "{{lastname}}"
+                }
+              ]
+            },
+            "description": "200; массив содержит bookingid созданной записи.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-FLTR-004 — Комбинация firstname + lastname",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map(x => x.bookingid);",
+                  "pm.test(\"Созданный bookingid найден\", () => pm.expect(ids).to.include(Number(pm.collectionVariables.get(\"bookingId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking?firstname={{firstname}}&lastname={{lastname}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "firstname",
+                  "value": "{{firstname}}"
+                },
+                {
+                  "key": "lastname",
+                  "value": "{{lastname}}"
+                }
+              ]
+            },
+            "description": "200; массив содержит bookingid созданной записи.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-FLTR-005 — Нижняя граница checkin включает запись",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map(x => x.bookingid);",
+                  "pm.test(\"Созданный bookingid найден\", () => pm.expect(ids).to.include(Number(pm.collectionVariables.get(\"bookingId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking?checkin=2030-01-09",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "checkin",
+                  "value": "2030-01-09"
+                }
+              ]
+            },
+            "description": "200; bookingid присутствует, так как 2030-01-10 >= 2030-01-09.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-FLTR-006 — Нижняя граница checkin исключает запись",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map(x => x.bookingid);",
+                  "pm.test(\"Созданный bookingid не найден\", () => pm.expect(ids).to.not.include(Number(pm.collectionVariables.get(\"bookingId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking?checkin=2030-01-11",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "checkin",
+                  "value": "2030-01-11"
+                }
+              ]
+            },
+            "description": "200; bookingid отсутствует.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-FLTR-007 — Документированная нижняя граница checkout включает запись",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map(x => x.bookingid);",
+                  "pm.test(\"Созданный bookingid найден\", () => pm.expect(ids).to.include(Number(pm.collectionVariables.get(\"bookingId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking?checkout=2030-01-19",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "checkout",
+                  "value": "2030-01-19"
+                }
+              ]
+            },
+            "description": "200; bookingid присутствует, так как документация требует checkout >= параметра.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-FLTR-008 — Документированная нижняя граница checkout исключает запись",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map(x => x.bookingid);",
+                  "pm.test(\"Созданный bookingid не найден\", () => pm.expect(ids).to.not.include(Number(pm.collectionVariables.get(\"bookingId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking?checkout=2030-01-21",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "checkout",
+                  "value": "2030-01-21"
+                }
+              ]
+            },
+            "description": "200; bookingid отсутствует.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-FLTR-009 — Невалидный формат даты фильтра",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking?checkin=not-a-date",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "checkin",
+                  "value": "not-a-date"
+                }
+              ]
+            },
+            "description": "400 Bad Request; сервер не возвращает 5xx.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-FLTR-010 — Фильтр без совпадений",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Пустой массив\", () => pm.expect(pm.response.json()).to.eql([]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking?firstname=NoSuchCodexGuest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "firstname",
+                  "value": "NoSuchCodexGuest"
+                }
+              ]
+            },
+            "description": "200; пустой JSON-массив.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 — GET booking by id",
+      "item": [
+        {
+          "name": "TC-GET-001 — Получение созданного бронирования в JSON",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Схема бронирования\", () => { const b = pm.response.json(); pm.expect(b).to.include.all.keys(\"firstname\", \"lastname\", \"totalprice\", \"depositpaid\", \"bookingdates\", \"additionalneeds\"); pm.expect(b.bookingdates).to.include.all.keys(\"checkin\", \"checkout\"); });",
+                  "pm.test(\"Исходные имя и фамилия\", () => { const b=pm.response.json(); pm.expect(b.firstname).to.eql(pm.collectionVariables.get(\"firstname\")); pm.expect(b.lastname).to.eql(pm.collectionVariables.get(\"lastname\")); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "200; полная схема и исходные значения записи.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-GET-002 — Получение созданного бронирования в XML",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Content-Type application/xml\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/xml\b/i));",
+                  "pm.test(\"XML booking\", () => { pm.expect(pm.response.text()).to.include(\"<booking>\"); pm.expect(pm.response.text()).to.include(\"<firstname>\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/xml",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "200; Content-Type application/xml; XML содержит booking и firstname.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-GET-003 — Несуществующий числовой ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "999999999"
+              ]
+            },
+            "description": "404 Not Found.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-GET-004 — Нечисловой ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking/not-an-id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "not-an-id"
+              ]
+            },
+            "description": "404 Not Found; нет 5xx.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 — PUT booking",
+      "item": [
+        {
+          "name": "TC-PUT-001 — Полное обновление с Cookie token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Схема бронирования\", () => { const b = pm.response.json(); pm.expect(b).to.include.all.keys(\"firstname\", \"lastname\", \"totalprice\", \"depositpaid\", \"bookingdates\", \"additionalneeds\"); pm.expect(b.bookingdates).to.include.all.keys(\"checkin\", \"checkout\"); });",
+                  "pm.test(\"PUT применен\", () => { const b=pm.response.json(); pm.expect(b.firstname).to.eql(\"PutCookie\"); pm.expect(b.totalprice).to.eql(555); pm.expect(b.depositpaid).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"PutCookie\",\n  \"lastname\": \"Updated\",\n  \"totalprice\": 555,\n  \"depositpaid\": false,\n  \"bookingdates\": {\n    \"checkin\": \"2031-01-01\",\n    \"checkout\": \"2031-01-02\"\n  },\n  \"additionalneeds\": \"Lunch\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "200; ответ полностью совпадает с новым объектом.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PUT-002 — Полное обновление с Basic Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Basic Auth PUT применен\", () => { const b=pm.response.json(); pm.expect(b.firstname).to.eql(\"PutBasic\"); pm.expect(b.totalprice).to.eql(556); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Basic YWRtaW46cGFzc3dvcmQxMjM=",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"PutBasic\",\n  \"lastname\": \"UpdatedBasic\",\n  \"totalprice\": 556,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2031-01-01\",\n    \"checkout\": \"2031-01-02\"\n  },\n  \"additionalneeds\": \"Dinner\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "200; обновленные поля возвращены.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PUT-003 — PUT без авторизации",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"NoAuth\",\n  \"lastname\": \"Denied\",\n  \"totalprice\": 321,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "403 Forbidden; запись не изменена.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PUT-004 — PUT с невалидным token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token=invalid-token",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"BadToken\",\n  \"lastname\": \"Denied\",\n  \"totalprice\": 321,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "403 Forbidden; запись не изменена.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PUT-005 — PUT без обязательного firstname",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lastname\": \"Missing\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2031-01-01\",\n    \"checkout\": \"2031-01-02\"\n  },\n  \"additionalneeds\": \"None\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "400 Bad Request; запись не изменена.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "_SETUP — создать запись для негативного PUT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data=pm.response.json(); pm.collectionVariables.set(\"badPutId\", data.bookingid);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"BadPut\",\n  \"lastname\": \"Target\",\n  \"totalprice\": 321,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "Служебный запрос.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PUT-006 — PUT со строкой вместо totalprice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"BadPut\",\n  \"lastname\": \"Type\",\n  \"totalprice\": \"not-a-number\",\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{badPutId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{badPutId}}"
+              ]
+            },
+            "description": "400 Bad Request; значение не преобразуется в null.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PUT-007 — PUT несуществующего бронирования",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Missing\",\n  \"lastname\": \"Booking\",\n  \"totalprice\": 321,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "999999999"
+              ]
+            },
+            "description": "404 Not Found.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PUT-008 — PUT с невалидным JSON",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "400 Bad Request.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 — PATCH booking",
+      "item": [
+        {
+          "name": "TC-PATCH-001 — Частичное обновление firstname",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Схема бронирования\", () => { const b = pm.response.json(); pm.expect(b).to.include.all.keys(\"firstname\", \"lastname\", \"totalprice\", \"depositpaid\", \"bookingdates\", \"additionalneeds\"); pm.expect(b.bookingdates).to.include.all.keys(\"checkin\", \"checkout\"); });",
+                  "pm.test(\"Изменено только firstname\", () => { const b=pm.response.json(); pm.expect(b.firstname).to.eql(\"PatchCookie\"); pm.expect(b.lastname).to.eql(\"UpdatedBasic\"); pm.expect(b.totalprice).to.eql(556); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"PatchCookie\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "200; firstname изменен, остальные поля сохранены.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PATCH-002 — Частичное обновление только checkout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Неуказанный checkin сохранен\", () => { const b=pm.response.json(); pm.expect(b.bookingdates.checkin).to.eql(\"2031-01-01\"); pm.expect(b.bookingdates.checkout).to.eql(\"2032-02-02\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingdates\": {\n    \"checkout\": \"2032-02-02\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "200; checkout изменен; неуказанный checkin остается 2031-01-01.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PATCH-003 — PATCH с Basic Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Basic Auth PATCH применен\", () => pm.expect(pm.response.json().lastname).to.eql(\"BasicPatched\"));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Basic YWRtaW46cGFzc3dvcmQxMjM=",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lastname\": \"BasicPatched\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "200; lastname изменен.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PATCH-004 — PATCH без авторизации",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Denied\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "403 Forbidden.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PATCH-005 — PATCH с невалидным token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token=invalid-token",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Denied\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "403 Forbidden.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PATCH-006 — PATCH со строкой вместо totalprice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totalprice\": \"not-a-number\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "400 Bad Request; totalprice не становится null.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PATCH-007 — PATCH несуществующего бронирования",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Missing\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "999999999"
+              ]
+            },
+            "description": "404 Not Found.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PATCH-008 — PATCH с пустым JSON-объектом",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Схема бронирования\", () => { const b = pm.response.json(); pm.expect(b).to.include.all.keys(\"firstname\", \"lastname\", \"totalprice\", \"depositpaid\", \"bookingdates\", \"additionalneeds\"); pm.expect(b.bookingdates).to.include.all.keys(\"checkin\", \"checkout\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "200; текущая структура записи возвращена без удаления полей.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 — DELETE booking",
+      "item": [
+        {
+          "name": "_SETUP — создать запись для DELETE с Basic Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data=pm.response.json(); pm.collectionVariables.set(\"basicDeleteId\", data.bookingid);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"BasicDelete\",\n  \"lastname\": \"Target\",\n  \"totalprice\": 321,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2030-01-10\",\n    \"checkout\": \"2030-01-20\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            },
+            "description": "Служебный запрос.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-DEL-001 — DELETE без авторизации",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "403 Forbidden; запись остается доступной.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-DEL-002 — DELETE с невалидным token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token=invalid-token",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "403 Forbidden; запись остается доступной.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-DEL-003 — DELETE с Cookie token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200 или 204\", () => pm.expect([200, 204]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "Успех удаления: 204 без тела либо 200 с представлением результата; не 201 Created.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-DEL-004 — Проверка удаления через GET",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "404 Not Found.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-DEL-005 — Повторный DELETE",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "404 Not Found.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-DEL-006 — DELETE несуществующего бронирования",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "999999999"
+              ]
+            },
+            "description": "404 Not Found.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-DEL-007 — DELETE с Basic Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"HTTP 200 или 204\", () => pm.expect([200, 204]).to.include(pm.response.code));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Basic YWRtaW46cGFzc3dvcmQxMjM=",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{basicDeleteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{basicDeleteId}}"
+              ]
+            },
+            "description": "Успех удаления: 204 либо 200; не 201 Created.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 — Ping",
+      "item": [
+        {
+          "name": "TC-PING-001 — Проверка доступности сервиса",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ping"
+              ]
+            },
+            "description": "200 OK; успешная проверка без создания ресурса.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "TC-PING-002 — Неподдерживаемый метод POST",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ping"
+              ]
+            },
+            "description": "404 Not Found для отсутствующего маршрута POST /ping.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "99 — Cleanup",
+      "item": [
+        {
+          "name": "_CLEANUP — удалить {{decimalBookingId}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cleanup завершен\", () => pm.expect([201, 404, 405]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{decimalBookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{decimalBookingId}}"
+              ]
+            },
+            "description": "Служебный запрос.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "_CLEANUP — удалить {{invalidDateBookingId}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cleanup завершен\", () => pm.expect([201, 404, 405]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{invalidDateBookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{invalidDateBookingId}}"
+              ]
+            },
+            "description": "Служебный запрос.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "_CLEANUP — удалить {{wrongTypesBookingId}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cleanup завершен\", () => pm.expect([201, 404, 405]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{wrongTypesBookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{wrongTypesBookingId}}"
+              ]
+            },
+            "description": "Служебный запрос.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        },
+        {
+          "name": "_CLEANUP — удалить {{badPutId}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cleanup завершен\", () => pm.expect([201, 404, 405]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/{{badPutId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "{{badPutId}}"
+              ]
+            },
+            "description": "Служебный запрос.\n\nИсточник: https://restful-booker.herokuapp.com/apidoc/index.html"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://restful-booker.herokuapp.com"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "bookingId",
+      "value": "999999999"
+    },
+    {
+      "key": "badPutId",
+      "value": "999999999"
+    },
+    {
+      "key": "basicDeleteId",
+      "value": "999999999"
+    },
+    {
+      "key": "decimalBookingId",
+      "value": "999999999"
+    },
+    {
+      "key": "wrongTypesBookingId",
+      "value": "999999999"
+    },
+    {
+      "key": "firstname",
+      "value": ""
+    },
+    {
+      "key": "lastname",
+      "value": ""
+    }
+  ]
+}
